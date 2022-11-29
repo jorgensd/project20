@@ -9,6 +9,8 @@ end
 
 x = range(0,stop=2*pi,length=10)
 plot(x, f(x), fmt= :png)
-rm("plots", recursive=true)
-mkdir("plots")
+if !ispath("plots")
+    mkdir("plots")
+end
+
 savefig("plots/f.png")
