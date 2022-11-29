@@ -15,13 +15,12 @@ on:
     - cron: "0 8 * * *"
   
 jobs:
-
-  test-code:
-    # This code depends on the result of check-code
+  run-script:
     runs-on: macos-12
     container:
       image: julia:latest
 
+    steps:
       - uses: actions/checkout@v3
       
       - name: Run script
