@@ -3,7 +3,7 @@ using Plots
 ENV["GKSwstype"]="nul"
 
 function f(x)
-    sin.(x).+ 2.
+    return sin.(x).+ 2.
 end
 
 
