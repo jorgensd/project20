@@ -52,7 +52,7 @@ jobs:
       
       - name: Extract first tag
         run: |
-         echo (${{ format(steps.meta.outputs.tags, env.REGISTRY, env.IMAGE_NAME) }})
+         echo ${{ format(steps.meta.outputs.tags, env.REGISTRY, env.IMAGE_NAME) }}
 
 
       # ${{ github.ref == format('refs/heads/{0}', 'main') }}
