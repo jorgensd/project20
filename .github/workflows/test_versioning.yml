@@ -21,10 +21,14 @@ env:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -49,7 +53,7 @@ jobs:
             type=raw,value=stable,enable=${{ startsWith(github.ref, 'refs/tags/v') }}
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=${{ github.sha }},enable=${{ github.event_name == 'pull_request' }}
-
+      
 
       - name: Build image but do not push 
         uses: docker/build-push-action@v4
@@ -58,7 +62,7 @@ jobs:
           push: false
           load: true
           platforms: linux/amd64
-          tags: ${{ format(steps.meta.outputs.tags, env.REGISTRY, env.IMAGE_NAME) }}
+          tags: ${{ format(steps.meta.outputs.tags, 'localhost:5000', env.IMAGE_NAME) }}
           file: docker/Dockerfile
           
       - name: Log in to the Container registry
