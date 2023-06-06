@@ -21,10 +21,14 @@ env:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     permissions:
       contents: read
       packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -50,36 +54,31 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
             type=raw,value=${{ github.sha }},enable=${{ github.event_name == 'pull_request' }}
       
-      - name: Extract first tag
-        run: |
-          echo ${{ env.DOCKER_METADATA_OUTPUT_VERSION }}
 
-      # 
-
-      # - name: Build image but do not push 
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     push: false
-      #     load: true
-      #     platforms: linux/amd64
-      #     tags: ${{ format(steps.meta.outputs.tags, env.REGISTRY, env.IMAGE_NAME) }}
-      #     file: docker/Dockerfile
+      - name: Build image but do not push 
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
+          load: true
+          platforms: linux/amd64
+          tags: ${{ format(steps.meta.outputs.tags, 'localhost:5000', env.IMAGE_NAME) }}
+          file: docker/Dockerfile
           
-      # - name: Log in to the Container registry
-      #   if: ${{ github.event_name != 'pull_request' }}
-      #   uses: docker/login-action@v2
-      #   with:
-      #     registry: ${{ env.REGISTRY }}
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to the Container registry
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       
-      # - name: Push images
-      #   if: ${{ github.event_name != 'pull_request' }}
-      #   uses: docker/build-push-action@v4
-      #   with:
-      #     context: .
-      #     push: true
-      #     platforms: linux/amd64
-      #     tags: ${{ format(steps.meta.outputs.tags, env.REGISTRY, env.IMAGE_NAME) }}
+      - name: Push images
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          tags: ${{ format(steps.meta.outputs.tags, env.REGISTRY, env.IMAGE_NAME) }}
  
